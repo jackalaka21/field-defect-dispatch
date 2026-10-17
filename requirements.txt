@@ -1,0 +1,17 @@
+# Python 3.12 (ctranslate2 / faster-whisper wheels are not yet published for 3.14)
+# GPU torch: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+torch>=2.5
+torchvision
+ultralytics>=8.3
+faster-whisper>=1.1
+pydantic>=2.6
+scikit-learn>=1.4
+numpy
+pandas
+rapidfuzz
+scipy
+pyyaml
+matplotlib
+pyttsx3
+soundfile
+pytest

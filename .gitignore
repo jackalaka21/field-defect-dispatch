@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# data, models and run artefacts stay local
+data/*
+!data/.gitkeep
+runs/
+weights/
+*.pt
+*.onnx
+*.wav
+
+# reports are small and committed on purpose
+!reports/*.json

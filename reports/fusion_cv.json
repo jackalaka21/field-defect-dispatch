@@ -1,0 +1,625 @@
+{
+  "n_dev": 4000,
+  "n_holdout": 1500,
+  "folds": 5,
+  "chosen_per_fold": [
+    "logreg(C=1.0)",
+    "logreg(C=1.0)",
+    "logreg(C=1.0)",
+    "logreg(C=1.0)",
+    "logreg(C=1.0)"
+  ],
+  "cv": {
+    "rules": {
+      "accuracy": {
+        "mean": 0.5960391528342833,
+        "std": 0.006781410144663754
+      },
+      "within_one": {
+        "mean": 0.9333212385852381,
+        "std": 0.0073279749072131025
+      },
+      "macro_f1": {
+        "mean": 0.5113700239490109,
+        "std": 0.0038306908691067153
+      },
+      "under_rate": {
+        "mean": 0.07834345537327476,
+        "std": 0.006538697626536657
+      },
+      "critical_miss_rate": {
+        "mean": 0.19588506264976852,
+        "std": 0.03145759168405311
+      },
+      "p1_precision": {
+        "mean": 0.2742685607484106,
+        "std": 0.019141704099483403
+      },
+      "mean_cost": {
+        "mean": 0.9488627471339462,
+        "std": 0.06064128803914887
+      }
+    },
+    "floor_only": {
+      "accuracy": {
+        "mean": 0.648702979921169,
+        "std": 0.013007375799039739
+      },
+      "within_one": {
+        "mean": 0.9561257490729398,
+        "std": 0.003336578182265795
+      },
+      "macro_f1": {
+        "mean": 0.46580600852613896,
+        "std": 0.013447478901356613
+      },
+      "under_rate": {
+        "mean": 0.16692818982579158,
+        "std": 0.006201975847899752
+      },
+      "critical_miss_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "p1_precision": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "mean_cost": {
+        "mean": 1.5323778394238048,
+        "std": 0.053591411653215536
+      }
+    },
+    "model_argmax_nofloor": {
+      "accuracy": {
+        "mean": 0.7609158682263593,
+        "std": 0.013610303963579358
+      },
+      "within_one": {
+        "mean": 0.9761873089614955,
+        "std": 0.0020313459375389717
+      },
+      "macro_f1": {
+        "mean": 0.6652721841722748,
+        "std": 0.022009304331776898
+      },
+      "under_rate": {
+        "mean": 0.14069514552780926,
+        "std": 0.011383676566432147
+      },
+      "critical_miss_rate": {
+        "mean": 0.5963368331015391,
+        "std": 0.050341622024045525
+      },
+      "p1_precision": {
+        "mean": 0.6837004320875288,
+        "std": 0.07496795144578144
+      },
+      "mean_cost": {
+        "mean": 0.9983974697115663,
+        "std": 0.050111203890507515
+      }
+    },
+    "model_argmax_floor": {
+      "accuracy": {
+        "mean": 0.6891295421897669,
+        "std": 0.014405487333327551
+      },
+      "within_one": {
+        "mean": 0.9674091006630338,
+        "std": 0.003238814848848083
+      },
+      "macro_f1": {
+        "mean": 0.6147497699537526,
+        "std": 0.018213701919327002
+      },
+      "under_rate": {
+        "mean": 0.09043871645962069,
+        "std": 0.005499117866511741
+      },
+      "critical_miss_rate": {
+        "mean": 0.5963368331015391,
+        "std": 0.050341622024045525
+      },
+      "p1_precision": {
+        "mean": 0.6837004320875288,
+        "std": 0.07496795144578144
+      },
+      "mean_cost": {
+        "mean": 0.9267625406806008,
+        "std": 0.03988596548941531
+      }
+    },
+    "model_cost_floor": {
+      "accuracy": {
+        "mean": 0.5925727199381463,
+        "std": 0.023815849369638983
+      },
+      "within_one": {
+        "mean": 0.9403162252587564,
+        "std": 0.010006984575040543
+      },
+      "macro_f1": {
+        "mean": 0.527946453862006,
+        "std": 0.025555163698151577
+      },
+      "under_rate": {
+        "mean": 0.03063218096161164,
+        "std": 0.004427947805296913
+      },
+      "critical_miss_rate": {
+        "mean": 0.11900837724367137,
+        "std": 0.015643610160281696
+      },
+      "p1_precision": {
+        "mean": 0.3308082401293199,
+        "std": 0.019448341546262432
+      },
+      "mean_cost": {
+        "mean": 0.6184327915130459,
+        "std": 0.033728890733282134
+      },
+      "ece": {
+        "mean": 0.030397101539865988,
+        "std": 0.0058252398106262366
+      }
+    }
+  },
+  "review_routing": {
+    "review_rate": {
+      "mean": 0.35280600754431424,
+      "std": 0.010832043662381129
+    },
+    "auto_accuracy": {
+      "mean": 0.6469387065372721,
+      "std": 0.025978858600881397
+    },
+    "flagged_accuracy": {
+      "mean": 0.492013766926447,
+      "std": 0.0389492411899942
+    }
+  },
+  "operating_point_oof": {
+    "under_scale": 3.0,
+    "review_prob": 0.5,
+    "review_rate": 0.29425,
+    "critical_miss_raw": 0.04693140794223827,
+    "critical_miss_escaped": 0.018050541516245487,
+    "auto_accuracy": 0.5139922068721219,
+    "over_escalation": 0.50625,
+    "wasteful_rate": 0.0965,
+    "p1_precision": 0.24175824175824176
+  },
+  "operating_grid_oof": [
+    {
+      "under_scale": 0.5,
+      "review_prob": 0.4,
+      "review_rate": 0.254,
+      "critical_miss_raw": 0.21299638989169675,
+      "critical_miss_escaped": 0.13357400722021662,
+      "auto_accuracy": 0.6695710455764075,
+      "over_escalation": 0.30625,
+      "wasteful_rate": 0.0325,
+      "p1_precision": 0.42166344294003866
+    },
+    {
+      "under_scale": 0.5,
+      "review_prob": 0.5,
+      "review_rate": 0.29425,
+      "critical_miss_raw": 0.21299638989169675,
+      "critical_miss_escaped": 0.12274368231046931,
+      "auto_accuracy": 0.6850867871059156,
+      "over_escalation": 0.30625,
+      "wasteful_rate": 0.0325,
+      "p1_precision": 0.42166344294003866
+    },
+    {
+      "under_scale": 0.5,
+      "review_prob": 0.55,
+      "review_rate": 0.3525,
+      "critical_miss_raw": 0.21299638989169675,
+      "critical_miss_escaped": 0.09386281588447654,
+      "auto_accuracy": 0.7061776061776062,
+      "over_escalation": 0.30625,
+      "wasteful_rate": 0.0325,
+      "p1_precision": 0.42166344294003866
+    },
+    {
+      "under_scale": 0.5,
+      "review_prob": 0.6,
+      "review_rate": 0.41275,
+      "critical_miss_raw": 0.21299638989169675,
+      "critical_miss_escaped": 0.08303249097472924,
+      "auto_accuracy": 0.7326521924223074,
+      "over_escalation": 0.30625,
+      "wasteful_rate": 0.0325,
+      "p1_precision": 0.42166344294003866
+    },
+    {
+      "under_scale": 0.5,
+      "review_prob": 0.65,
+      "review_rate": 0.48025,
+      "critical_miss_raw": 0.21299638989169675,
+      "critical_miss_escaped": 0.07220216606498195,
+      "auto_accuracy": 0.7676767676767676,
+      "over_escalation": 0.30625,
+      "wasteful_rate": 0.0325,
+      "p1_precision": 0.42166344294003866
+    },
+    {
+      "under_scale": 0.5,
+      "review_prob": 0.7,
+      "review_rate": 0.5485,
+      "critical_miss_raw": 0.21299638989169675,
+      "critical_miss_escaped": 0.05776173285198556,
+      "auto_accuracy": 0.8017718715393134,
+      "over_escalation": 0.30625,
+      "wasteful_rate": 0.0325,
+      "p1_precision": 0.42166344294003866
+    },
+    {
+      "under_scale": 0.5,
+      "review_prob": 0.8,
+      "review_rate": 0.662,
+      "critical_miss_raw": 0.21299638989169675,
+      "critical_miss_escaped": 0.010830324909747292,
+      "auto_accuracy": 0.8587278106508875,
+      "over_escalation": 0.30625,
+      "wasteful_rate": 0.0325,
+      "p1_precision": 0.42166344294003866
+    },
+    {
+      "under_scale": 1.0,
+      "review_prob": 0.4,
+      "review_rate": 0.254,
+      "critical_miss_raw": 0.11913357400722022,
+      "critical_miss_escaped": 0.07220216606498195,
+      "auto_accuracy": 0.6166219839142091,
+      "over_escalation": 0.377,
+      "wasteful_rate": 0.05625,
+      "p1_precision": 0.3283983849259758
+    },
+    {
+      "under_scale": 1.0,
+      "review_prob": 0.5,
+      "review_rate": 0.29425,
+      "critical_miss_raw": 0.11913357400722022,
+      "critical_miss_escaped": 0.06498194945848375,
+      "auto_accuracy": 0.6298264257881686,
+      "over_escalation": 0.377,
+      "wasteful_rate": 0.05625,
+      "p1_precision": 0.3283983849259758
+    },
+    {
+      "under_scale": 1.0,
+      "review_prob": 0.55,
+      "review_rate": 0.3525,
+      "critical_miss_raw": 0.11913357400722022,
+      "critical_miss_escaped": 0.04332129963898917,
+      "auto_accuracy": 0.6471042471042471,
+      "over_escalation": 0.377,
+      "wasteful_rate": 0.05625,
+      "p1_precision": 0.3283983849259758
+    },
+    {
+      "under_scale": 1.0,
+      "review_prob": 0.6,
+      "review_rate": 0.41275,
+      "critical_miss_raw": 0.11913357400722022,
+      "critical_miss_escaped": 0.04332129963898917,
+      "auto_accuracy": 0.6683695189442316,
+      "over_escalation": 0.377,
+      "wasteful_rate": 0.05625,
+      "p1_precision": 0.3283983849259758
+    },
+    {
+      "under_scale": 1.0,
+      "review_prob": 0.65,
+      "review_rate": 0.48025,
+      "critical_miss_raw": 0.11913357400722022,
+      "critical_miss_escaped": 0.036101083032490974,
+      "auto_accuracy": 0.7046657046657047,
+      "over_escalation": 0.377,
+      "wasteful_rate": 0.05625,
+      "p1_precision": 0.3283983849259758
+    },
+    {
+      "under_scale": 1.0,
+      "review_prob": 0.7,
+      "review_rate": 0.5485,
+      "critical_miss_raw": 0.11913357400722022,
+      "critical_miss_escaped": 0.032490974729241874,
+      "auto_accuracy": 0.7452934662236987,
+      "over_escalation": 0.377,
+      "wasteful_rate": 0.05625,
+      "p1_precision": 0.3283983849259758
+    },
+    {
+      "under_scale": 1.0,
+      "review_prob": 0.8,
+      "review_rate": 0.662,
+      "critical_miss_raw": 0.11913357400722022,
+      "critical_miss_escaped": 0.007220216606498195,
+      "auto_accuracy": 0.8535502958579881,
+      "over_escalation": 0.377,
+      "wasteful_rate": 0.05625,
+      "p1_precision": 0.3283983849259758
+    },
+    {
+      "under_scale": 2.0,
+      "review_prob": 0.4,
+      "review_rate": 0.254,
+      "critical_miss_raw": 0.06498194945848375,
+      "critical_miss_escaped": 0.039711191335740074,
+      "auto_accuracy": 0.5405495978552279,
+      "over_escalation": 0.46125,
+      "wasteful_rate": 0.0815,
+      "p1_precision": 0.2732067510548523
+    },
+    {
+      "under_scale": 2.0,
+      "review_prob": 0.5,
+      "review_rate": 0.29425,
+      "critical_miss_raw": 0.06498194945848375,
+      "critical_miss_escaped": 0.032490974729241874,
+      "auto_accuracy": 0.552957846262841,
+      "over_escalation": 0.46125,
+      "wasteful_rate": 0.0815,
+      "p1_precision": 0.2732067510548523
+    },
+    {
+      "under_scale": 2.0,
+      "review_prob": 0.55,
+      "review_rate": 0.3525,
+      "critical_miss_raw": 0.06498194945848375,
+      "critical_miss_escaped": 0.018050541516245487,
+      "auto_accuracy": 0.5671814671814672,
+      "over_escalation": 0.46125,
+      "wasteful_rate": 0.0815,
+      "p1_precision": 0.2732067510548523
+    },
+    {
+      "under_scale": 2.0,
+      "review_prob": 0.6,
+      "review_rate": 0.41275,
+      "critical_miss_raw": 0.06498194945848375,
+      "critical_miss_escaped": 0.018050541516245487,
+      "auto_accuracy": 0.5849297573435505,
+      "over_escalation": 0.46125,
+      "wasteful_rate": 0.0815,
+      "p1_precision": 0.2732067510548523
+    },
+    {
+      "under_scale": 2.0,
+      "review_prob": 0.65,
+      "review_rate": 0.48025,
+      "critical_miss_raw": 0.06498194945848375,
+      "critical_miss_escaped": 0.010830324909747292,
+      "auto_accuracy": 0.62000962000962,
+      "over_escalation": 0.46125,
+      "wasteful_rate": 0.0815,
+      "p1_precision": 0.2732067510548523
+    },
+    {
+      "under_scale": 2.0,
+      "review_prob": 0.7,
+      "review_rate": 0.5485,
+      "critical_miss_raw": 0.06498194945848375,
+      "critical_miss_escaped": 0.007220216606498195,
+      "auto_accuracy": 0.6611295681063123,
+      "over_escalation": 0.46125,
+      "wasteful_rate": 0.0815,
+      "p1_precision": 0.2732067510548523
+    },
+    {
+      "under_scale": 2.0,
+      "review_prob": 0.8,
+      "review_rate": 0.662,
+      "critical_miss_raw": 0.06498194945848375,
+      "critical_miss_escaped": 0.0,
+      "auto_accuracy": 0.7892011834319527,
+      "over_escalation": 0.46125,
+      "wasteful_rate": 0.0815,
+      "p1_precision": 0.2732067510548523
+    },
+    {
+      "under_scale": 3.0,
+      "review_prob": 0.4,
+      "review_rate": 0.254,
+      "critical_miss_raw": 0.04693140794223827,
+      "critical_miss_escaped": 0.02527075812274368,
+      "auto_accuracy": 0.5020107238605898,
+      "over_escalation": 0.50625,
+      "wasteful_rate": 0.0965,
+      "p1_precision": 0.24175824175824176
+    },
+    {
+      "under_scale": 3.0,
+      "review_prob": 0.5,
+      "review_rate": 0.29425,
+      "critical_miss_raw": 0.04693140794223827,
+      "critical_miss_escaped": 0.018050541516245487,
+      "auto_accuracy": 0.5139922068721219,
+      "over_escalation": 0.50625,
+      "wasteful_rate": 0.0965,
+      "p1_precision": 0.24175824175824176
+    },
+    {
+      "under_scale": 3.0,
+      "review_prob": 0.55,
+      "review_rate": 0.3525,
+      "critical_miss_raw": 0.04693140794223827,
+      "critical_miss_escaped": 0.0036101083032490976,
+      "auto_accuracy": 0.527027027027027,
+      "over_escalation": 0.50625,
+      "wasteful_rate": 0.0965,
+      "p1_precision": 0.24175824175824176
+    },
+    {
+      "under_scale": 3.0,
+      "review_prob": 0.6,
+      "review_rate": 0.41275,
+      "critical_miss_raw": 0.04693140794223827,
+      "critical_miss_escaped": 0.0036101083032490976,
+      "auto_accuracy": 0.5449127288207748,
+      "over_escalation": 0.50625,
+      "wasteful_rate": 0.0965,
+      "p1_precision": 0.24175824175824176
+    },
+    {
+      "under_scale": 3.0,
+      "review_prob": 0.65,
+      "review_rate": 0.48025,
+      "critical_miss_raw": 0.04693140794223827,
+      "critical_miss_escaped": 0.0036101083032490976,
+      "auto_accuracy": 0.581048581048581,
+      "over_escalation": 0.50625,
+      "wasteful_rate": 0.0965,
+      "p1_precision": 0.24175824175824176
+    },
+    {
+      "under_scale": 3.0,
+      "review_prob": 0.7,
+      "review_rate": 0.5485,
+      "critical_miss_raw": 0.04693140794223827,
+      "critical_miss_escaped": 0.0,
+      "auto_accuracy": 0.6267995570321152,
+      "over_escalation": 0.50625,
+      "wasteful_rate": 0.0965,
+      "p1_precision": 0.24175824175824176
+    },
+    {
+      "under_scale": 3.0,
+      "review_prob": 0.8,
+      "review_rate": 0.662,
+      "critical_miss_raw": 0.04693140794223827,
+      "critical_miss_escaped": 0.0,
+      "auto_accuracy": 0.7514792899408284,
+      "over_escalation": 0.50625,
+      "wasteful_rate": 0.0965,
+      "p1_precision": 0.24175824175824176
+    },
+    {
+      "under_scale": 4.0,
+      "review_prob": 0.4,
+      "review_rate": 0.254,
+      "critical_miss_raw": 0.04332129963898917,
+      "critical_miss_escaped": 0.02527075812274368,
+      "auto_accuracy": 0.46112600536193027,
+      "over_escalation": 0.5485,
+      "wasteful_rate": 0.11375,
+      "p1_precision": 0.22120200333889817
+    },
+    {
+      "under_scale": 4.0,
+      "review_prob": 0.5,
+      "review_rate": 0.29425,
+      "critical_miss_raw": 0.04332129963898917,
+      "critical_miss_escaped": 0.018050541516245487,
+      "auto_accuracy": 0.4721927027984414,
+      "over_escalation": 0.5485,
+      "wasteful_rate": 0.11375,
+      "p1_precision": 0.22120200333889817
+    },
+    {
+      "under_scale": 4.0,
+      "review_prob": 0.55,
+      "review_rate": 0.3525,
+      "critical_miss_raw": 0.04332129963898917,
+      "critical_miss_escaped": 0.0036101083032490976,
+      "auto_accuracy": 0.48416988416988416,
+      "over_escalation": 0.5485,
+      "wasteful_rate": 0.11375,
+      "p1_precision": 0.22120200333889817
+    },
+    {
+      "under_scale": 4.0,
+      "review_prob": 0.6,
+      "review_rate": 0.41275,
+      "critical_miss_raw": 0.04332129963898917,
+      "critical_miss_escaped": 0.0036101083032490976,
+      "auto_accuracy": 0.5019157088122606,
+      "over_escalation": 0.5485,
+      "wasteful_rate": 0.11375,
+      "p1_precision": 0.22120200333889817
+    },
+    {
+      "under_scale": 4.0,
+      "review_prob": 0.65,
+      "review_rate": 0.48025,
+      "critical_miss_raw": 0.04332129963898917,
+      "critical_miss_escaped": 0.0036101083032490976,
+      "auto_accuracy": 0.5396825396825397,
+      "over_escalation": 0.5485,
+      "wasteful_rate": 0.11375,
+      "p1_precision": 0.22120200333889817
+    },
+    {
+      "under_scale": 4.0,
+      "review_prob": 0.7,
+      "review_rate": 0.5485,
+      "critical_miss_raw": 0.04332129963898917,
+      "critical_miss_escaped": 0.0,
+      "auto_accuracy": 0.5825027685492802,
+      "over_escalation": 0.5485,
+      "wasteful_rate": 0.11375,
+      "p1_precision": 0.22120200333889817
+    },
+    {
+      "under_scale": 4.0,
+      "review_prob": 0.8,
+      "review_rate": 0.662,
+      "critical_miss_raw": 0.04332129963898917,
+      "critical_miss_escaped": 0.0,
+      "auto_accuracy": 0.7026627218934911,
+      "over_escalation": 0.5485,
+      "wasteful_rate": 0.11375,
+      "p1_precision": 0.22120200333889817
+    }
+  ],
+  "holdout": {
+    "model": "logreg(C=10.0)",
+    "operating_point": {
+      "under_scale": 3.0,
+      "review_prob": 0.5,
+      "review_rate": 0.2846666666666667,
+      "critical_miss_raw": 0.09174311926605505,
+      "critical_miss_escaped": 0.027522935779816515,
+      "auto_accuracy": 0.5219012115563839,
+      "over_escalation": 0.48733333333333334,
+      "wasteful_rate": 0.08933333333333333,
+      "p1_precision": 0.2475
+    },
+    "default_point": {
+      "under_scale": 1.0,
+      "review_prob": 0.55,
+      "review_rate": 0.35,
+      "critical_miss_raw": 0.1559633027522936,
+      "critical_miss_escaped": 0.06422018348623854,
+      "auto_accuracy": 0.6266666666666667,
+      "over_escalation": 0.37,
+      "wasteful_rate": 0.04733333333333333,
+      "p1_precision": 0.32280701754385965
+    },
+    "model_cost_floor": {
+      "accuracy": 0.5933333333333334,
+      "within_one": 0.95,
+      "macro_f1": 0.5280441973468033,
+      "under_rate": 0.03666666666666667,
+      "critical_miss_rate": 0.1559633027522936,
+      "p1_precision": 0.32280701754385965,
+      "mean_cost": 0.6426666666666667
+    },
+    "rules": {
+      "accuracy": 0.5946666666666667,
+      "within_one": 0.9286666666666666,
+      "macro_f1": 0.5124453842325047,
+      "under_rate": 0.088,
+      "critical_miss_rate": 0.1926605504587156,
+      "p1_precision": 0.28115015974440893,
+      "mean_cost": 1.001
+    },
+    "ece": 0.019519354634515894
+  },
+  "note": "synthetic fixture: validates the machinery, not real-world accuracy"
+}
