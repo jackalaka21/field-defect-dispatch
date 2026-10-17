@@ -16,9 +16,48 @@ def build_prompt(registry: dict[str, Asset]) -> str:
             + f". Asset IDs such as {ids}. Example: Found severe rebar corrosion near pump housing B4.")
 
 
+def _expose_cuda_libs() -> None:
+    """ctranslate2 needs cuBLAS/cuDNN 12; the CUDA build of PyTorch already ships them. Make them
+    discoverable instead of requiring a separate CUDA toolkit install."""
+    import os
+    import sys
+
+    if sys.platform != "win32":
+        return
+    try:
+        import torch
+
+        lib = Path(torch.__file__).parent / "lib"
+        if lib.is_dir():
+            os.add_dll_directory(str(lib))
+            os.environ["PATH"] = str(lib) + os.pathsep + os.environ.get("PATH", "")
+    except ImportError:
+        pass
+
+
+def load_audio(path: str | Path, sr: int = 16000):
+    """Mono float32 at 16 kHz. Decoding WAV ourselves avoids a faster-whisper / PyAV 19 incompatibility
+    (`metadata_errors`); other formats fall back to faster-whisper's own decoder."""
+    import numpy as np
+
+    if Path(path).suffix.lower() != ".wav":
+        return str(path)
+    import soundfile as sf
+    from scipy.signal import resample_poly
+    from math import gcd
+
+    wav, native = sf.read(str(path), dtype="float32", always_2d=True)
+    wav = wav.mean(axis=1)
+    if native != sr:
+        g = gcd(sr, native)
+        wav = resample_poly(wav, sr // g, native // g).astype(np.float32)
+    return wav
+
+
 class Transcriber:
     def __init__(self, registry: dict[str, Asset], size: str = "small.en", device: str = "cuda",
                  compute_type: str = "int8_float16", beam_size: int = 5):
+        _expose_cuda_libs()
         from faster_whisper import WhisperModel
 
         self.model = WhisperModel(size, device=device, compute_type=compute_type)
@@ -30,7 +69,7 @@ class Transcriber:
         kw = dict(beam_size=self.beam_size, vad_filter=True, condition_on_previous_text=False, temperature=0.0)
         if use_prompt:
             kw |= dict(initial_prompt=self.prompt, hotwords=self.hotwords)
-        segments, _ = self.model.transcribe(str(audio), **kw)
+        segments, _ = self.model.transcribe(load_audio(audio), **kw)
         segs = list(segments)
         text = " ".join(s.text.strip() for s in segs).strip()
         if not segs:

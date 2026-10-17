@@ -1,0 +1,23 @@
+{
+  "model": "large-v3",
+  "snr_db": 10.0,
+  "n": 80,
+  "variants": {
+    "plain": {
+      "wer": 0.22948097041847043,
+      "keyword_error_rate": 0.03571428571428571,
+      "asset_id_exact": 0.9
+    },
+    "prompted": {
+      "wer": 0.17707025613275612,
+      "keyword_error_rate": 0.005952380952380952,
+      "asset_id_exact": 0.9125
+    },
+    "prompted+repair": {
+      "wer": 0.17945661976911978,
+      "keyword_error_rate": 0.005952380952380952,
+      "asset_id_exact": 0.9125
+    }
+  },
+  "note": "TTS audio: optimistic absolute numbers"
+}
