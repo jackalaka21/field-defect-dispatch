@@ -2,55 +2,51 @@
 
 ## Verdict
 
-Feasible on the target machine (RTX 3070 Ti Laptop, 8 GB) as a research-grade pipeline. The software and
-evaluation design are done and tested. **Real accuracy is gated by data, not code**: there is no in-domain labelled
-photo set and no real technician audio yet.
+Feasible on the target machine (RTX 3070 Ti Laptop, 8 GB) and now demonstrated end to end on real components: a
+CODEBRIM-trained YOLOv8s detector, Whisper large-v3 and the fusion/ticket stage run on a real photo plus a spoken
+memo. **What is not demonstrated is real-world accuracy**: there are no real technician memos and no expert priority
+labels, so the voice and priority parts of every number are synthetic. See the README for what is real.
+
+## What the work established
+
+| Question | Finding |
+|---|---|
+| Is the detector good enough to name the defect in a photo? | Yes at image level (AUROC 0.89–0.97, recall targets met out of fold); no at box level (mAP50 0.37). |
+| Can it gate clean vs defective photos? | Poorly: at recall-targeted thresholds 45% of clean photos are flagged. Structural-crack alone 30%. |
+| Do raw scores work as probabilities? | No (calibration error 0.07–0.23). Isotonic calibration fixes it to ~0.01–0.02, but is prevalence-specific. |
+| Does higher resolution help? | Not measurably at image level (960 px tie with 640 px for ~4–5× compute). |
+| Does domain prompting help speech? | Yes on synthetic memos: word error 0.229 → 0.177, keyword error 3.6% → 0.6%. |
+| Can fusion hit ≤3% escaped critical misses? | With the real detector's false alarms: 4.3% at a 52% review rate on the holdout. Not yet. |
 
 ## Hardware budget (8 GB)
 
-| Stage | Setting | Approx. VRAM |
+| Stage | Setting | Observed |
 |---|---|---|
-| YOLOv8s training | imgsz 640, batch 8, AMP | 4–6 GB |
-| YOLOv8s inference (tiled) | batch 1 | < 1 GB |
-| Faster-Whisper `small.en` / `large-v3` | `int8_float16` | ~1 GB / ~3 GB |
-| LLM finaliser | API call, or a 4-bit 7B locally | 0 / ~5 GB |
+| YOLOv8s training | 640 px, batch 8, AMP | ~2.5 GB, 20–45 s/epoch |
+| YOLOv8s inference | single pass | < 1 GB |
+| Whisper large-v3 | `int8_float16` | ~3 GB |
 
-Stages run sequentially per ticket, so inference never needs more than the largest stage. Training and inference
-should not overlap. Note: the machine shows ~1.5 GB already in use by other processes.
+Stages run sequentially per ticket; training and inference should not overlap.
 
-## Risks and how each is handled
+## Risks
 
-| Risk | Impact | Mitigation |
+| Risk | Impact | Status |
 |---|---|---|
-| No labelled in-domain photos | detector accuracy unknown | k-fold fine-tuning script is ready and smoke-tested; public concrete-defect sets (candidates: CODEBRIM, SDNET2018) need their licence and label format checked, and are classification rather than box labels, so some boxes must be annotated |
-| Priority ground truth is subjective | any accuracy number depends on who labelled | fusion is trained and scored on expert-labelled tickets only; synthetic labels are a fixture |
-| Class taxonomy gap (photo says `exposed_rebar`, voice says "corrosion") | modalities appear to conflict | `rebar_corrosion` and `spalling` are first-class detector classes; conflict → human review rather than a guess |
-| Python 3.14 has no `ctranslate2` wheel | speech stage cannot install | project pinned to a Python 3.12 venv |
-| Rare critical class (P1 ≈ 7%) | argmax models ignore it | cost-sensitive decision, safety floor, recall-targeted thresholds, escaped-miss metric |
-| LLM nondeterminism | invalid or downgraded tickets | deterministic writer is default; LLM output is schema-validated, retried, floor-checked and falls back to the deterministic ticket |
-| TTS audio is cleaner than real memos | ASR numbers optimistic | used only for A/B comparisons (prompt vs none); real memos needed for absolute WER |
+| No real memos / expert priority labels | fusion accuracy unknown | open; the main gap |
+| CODEBRIM licence is non-commercial, no redistribution | data, weights, score files stay local | handled in `.gitignore` and README |
+| Hairline crack and water leak have no training data | those classes cannot be detected | open; need another dataset or own photos |
+| CODEBRIM's generic "crack" is mapped to `structural_crack` | cosmetic cracks over-escalated | accepted, conservative |
+| Detector false alarms on clean photos (45% flagged) | high human-review load | open; more clean negatives, longer training, better threshold policy |
+| Thresholds/calibration come from fold models, applied to the final model fitted on all data | small distribution shift | accepted (standard k-fold practice); refit on a production sample |
+| Tiled inference not validated | score shift vs calibration | `tile=None` by default; enable only after refitting |
+| Label noise: unlabelled stains among the 538 negatives | FPR slightly pessimistic | noted |
+| Python 3.14 / PyAV 19 / CUDA-lib incompatibilities | install failures | worked around and documented |
 
-## Evaluation design (why the numbers can be trusted once real data exists)
+## Remaining work, by expected gain
 
-- **Grouped splits.** Folds are grouped by site/inspection so near-duplicate photos never straddle train and
-  validation.
-- **Nested tuning.** Model choice runs inside each training fold; the operating point is chosen on pooled
-  out-of-fold probabilities; the holdout is looked at once.
-- **Metrics that match the harm.** Critical-miss rate, cost under an asymmetric matrix, and the *escaped* critical-miss
-  rate after human review, in addition to accuracy and macro-F1.
-- **Always report mean ± std over folds**, never a single split.
-
-## Remaining work, in order of expected accuracy gain
-
-1. Assemble real data: photos with box labels, 100+ real or recorded memos, and expert priority labels per case.
-2. Run `train_detector_cv.py` (YOLOv8s, 5 folds) and adopt the OOF-tuned `thresholds.json`.
-3. Run `eval_asr.py` on real memos: compare `small.en` vs `large-v3`, prompt vs none, and tune the repair step on the
-   observed errors.
-4. Re-run `cv_fusion.py` on real evidence; the simulator in `dispatch/synth/` is then used only for tests.
-5. Shadow-mode deployment against the Plane API before any ticket is auto-created.
-
-## Planned, not built
-
-- Plane API client (create/idempotency key/deduplicate by asset + defect + time window).
-- Drift monitoring (class mix, mean confidence, review rate).
-- Conformal calibration of the detector scores.
+1. Real technician memos and expert priority labels (even 200 cases) to replace the synthetic voice/label layer.
+2. Train longer (every CV fold's best epoch was its last) and try a larger model; add more clean negatives to cut
+   false alarms.
+3. Collect photos of hairline cracks and water leaks, or drop those classes from the taxonomy.
+4. Re-tune the operating point on real fusion data; aim for ≤3% escaped critical misses at a tolerable review rate.
+5. Plane API client with idempotency keys and deduplication; drift monitoring; shadow-mode rollout.
