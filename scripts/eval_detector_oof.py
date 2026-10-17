@@ -36,6 +36,7 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--imgsz", type=int, default=640)
     ap.add_argument("--device", default="0")
+    ap.add_argument("--augment", action="store_true", help="test-time augmentation (flips + scales)")
     ap.add_argument("--only-folds", type=int, nargs="*", default=None)
     ap.add_argument("--out", type=Path, required=True)
     a = ap.parse_args()
@@ -45,15 +46,22 @@ def main() -> None:
     imgs, strata, groups = index_dataset(a.data, a.groups_file)
     skf = StratifiedGroupKFold(n_splits=a.folds, shuffle=True, random_state=a.seed)
     K = len(DETECTOR_CLASSES)
-    score, present, area, fold_sizes = [], [], [], []
+    score, present, area, fold_sizes, feats, stems = [], [], [], [], [], []
     for k, (_, va) in enumerate(skf.split(imgs, strata, groups)):
         if a.only_folds is not None and k not in a.only_folds:
             continue
         best = a.cv_dir / f"fold{k}" / "run" / "weights" / "best.pt"
         model = YOLO(str(best if best.exists() else best.with_name("last.pt")))
         for i in va:
-            res = model.predict(str(imgs[i]), imgsz=a.imgsz, conf=0.001, iou=0.6, device=a.device, verbose=False)[0]
+            res = model.predict(str(imgs[i]), imgsz=a.imgsz, conf=0.001, iou=0.6, device=a.device, verbose=False,
+                                 augment=a.augment)[0]
             s, ar = np.zeros(K), np.zeros(K)
+            f = np.zeros((K, 4))  # per class: max conf, sum of top-3 confs, boxes >= 0.1, area of the top box
+            cls_ids = res.boxes.cls.cpu().numpy().astype(int)
+            confs = res.boxes.conf.cpu().numpy()
+            for c in range(K):
+                cc = np.sort(confs[cls_ids == c])[::-1]
+                f[c] = [cc[0] if len(cc) else 0.0, cc[:3].sum(), float((cc >= 0.1).sum()), 0.0]
             for c, conf, (bx1, by1, bx2, by2) in zip(res.boxes.cls.cpu().numpy().astype(int), res.boxes.conf.cpu().numpy(),
                                                     res.boxes.xyxyn.cpu().numpy()):
                 if conf > s[c]:
@@ -61,12 +69,15 @@ def main() -> None:
             p = np.zeros(K, bool)
             for c, _ in read_yolo_labels(a.data / "labels" / f"{imgs[i].stem}.txt"):
                 p[c] = True
+            f[:, 3] = ar
+            feats.append(f)
+            stems.append(imgs[i].stem)
             score.append(s)
             area.append(ar)
             present.append(p)
         fold_sizes.append(len(va))
         print(f"fold {k}: scored {len(va)} images", flush=True)
-    S, P, A = np.array(score), np.array(present), np.array(area)
+    S, P, A, F = np.array(score), np.array(present), np.array(area), np.array(feats)
 
     out = {"n_images": int(len(S)), "per_class": {}}
     thresholds = {}
@@ -97,7 +108,7 @@ def main() -> None:
         out["clean_flagged_for_any_class"] = float(flagged[clean].mean())
         out["defect_photos_flagged_for_any_class"] = float(flagged[~clean].mean())
     a.out.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(a.out.with_suffix(".npz"), scores=S, present=P, areas=A, fold_sizes=np.array(fold_sizes))
+    np.savez_compressed(a.out.with_suffix(".npz"), scores=S, present=P, areas=A, feats=F, stems=np.array(stems), fold_sizes=np.array(fold_sizes))
     a.out.write_text(json.dumps(out, indent=2))
     a.out.with_name(a.out.stem + "_thresholds.json").write_text(json.dumps(thresholds, indent=2))
     for name, r in out["per_class"].items():

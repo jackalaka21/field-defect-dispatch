@@ -1,0 +1,9 @@
+{
+  "exposed_rebar": 0.08382253348827362,
+  "rebar_corrosion": 0.12077020853757858,
+  "spalling": 0.09117789566516876,
+  "structural_crack": 0.037896424531936646,
+  "hairline_crack": 0.5,
+  "water_leak": 0.5,
+  "efflorescence": 0.0659182071685791
+}

@@ -139,3 +139,16 @@ def test_generator_is_deterministic_and_covers_all_priorities():
     a, b = generate_cases(400, seed=5), generate_cases(400, seed=5)
     assert [c.true_priority for c in a] == [c.true_priority for c in b]
     assert {c.true_priority for c in a} == set(Priority)
+
+
+def test_multi_defect_photo_is_not_a_conflict_if_any_confident_class_matches_the_voice():
+    from dispatch.fusion import review_reasons
+
+    both = CaseEvidence(detections=[det(D.SPALLING, 0.95), det(D.REBAR_CORROSION, 0.9)],
+                        cues=Cues(mentions=[D.REBAR_CORROSION], asset_id="B4"), asset_criticality=0.45)
+    assert not any("different defects" in r for r in review_reasons(both, 0.9))
+    f = dict(zip(FEATURE_NAMES, build_features(both)))
+    assert f["conflict"] == 1.0 and f["conflict_any"] == 0.0 and f["agree_any"] == 1.0  # top-class view is stricter
+    clash = CaseEvidence(detections=[det(D.SPALLING, 0.95)], cues=Cues(mentions=[D.WATER_LEAK], asset_id="B4"),
+                         asset_criticality=0.45)
+    assert any("different defects" in r for r in review_reasons(clash, 0.9))

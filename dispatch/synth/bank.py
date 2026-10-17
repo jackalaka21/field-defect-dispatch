@@ -19,12 +19,12 @@ from ..taxonomy import DETECTOR_CLASSES, DefectClass
 
 
 class DetectorBank:
-    def __init__(self, npz: str | Path, thresholds_json: str | Path, calibration_json: str | Path):
+    def __init__(self, npz: str | Path, thresholds_json: str | Path, calibration_json: str | Path | None = None):
         z = np.load(npz)
         self.scores, self.present, self.areas = z["scores"], z["present"], z["areas"]
         raw = json.loads(Path(thresholds_json).read_text())
         self.thresholds = {c: float(raw[c.value]) for c in DETECTOR_CLASSES}
-        self.calibrator = Calibrator.load(calibration_json)
+        self.calibrator = Calibrator.load(calibration_json) if calibration_json else Calibrator({})
         self.fold_sizes = z["fold_sizes"]
         self._index(np.arange(len(self.scores)))
 

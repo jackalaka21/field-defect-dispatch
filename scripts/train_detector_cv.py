@@ -67,7 +67,7 @@ def train(weights: str, data_yaml: Path, run_dir: Path, a: argparse.Namespace):
                 project=str(run_dir.parent.resolve()), name=run_dir.name, exist_ok=True, patience=a.patience,
                 plots=False, amp=not a.smoke, workers=a.workers, verbose=False,
                 # field-condition augmentation: lighting, glare, odd angles; no vertical flip (gravity matters)
-                hsv_h=0.015, hsv_s=0.6, hsv_v=0.5, degrees=10, translate=0.1, scale=0.5, fliplr=0.5, mosaic=1.0)
+                box=a.box, cls=a.cls, cos_lr=a.cos_lr, close_mosaic=a.close_mosaic, hsv_h=0.015, hsv_s=0.6, hsv_v=0.5, degrees=10, translate=0.1, scale=0.5, fliplr=0.5, mosaic=1.0)
     best = run_dir / "weights" / "best.pt"
     return YOLO(str(best if best.exists() else run_dir / "weights" / "last.pt"))
 
@@ -114,6 +114,10 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--device", default="0")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--box", type=float, default=7.5, help="box-loss gain (CODEBRIM boxes are loose: lower it)")
+    ap.add_argument("--cls", type=float, default=0.5, help="classification-loss gain")
+    ap.add_argument("--cos-lr", action="store_true")
+    ap.add_argument("--close-mosaic", type=int, default=10)
     ap.add_argument("--out", type=Path, default=Path("runs/detector_cv"))
     ap.add_argument("--groups-file", default="groups.csv", help="CSV of image_stem,group inside --data")
     ap.add_argument("--only-folds", type=int, nargs="*", default=None, help="run just these fold indices (config probes)")

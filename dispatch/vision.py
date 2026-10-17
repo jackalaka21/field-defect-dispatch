@@ -98,3 +98,40 @@ class DefectDetector:
         if self.calibrator is not None:
             kept = [d.model_copy(update={"conf": self.calibrator(d.cls, d.conf)}) for d in kept]
         return kept
+
+
+class ImageLevelDetector:
+    """Detector + learned image-level scorer: one calibrated presence probability per class.
+
+    Matches how the scorer and thresholds were fitted: a single pass at `imgsz` with test-time augmentation, every
+    box kept down to conf 0.001. The returned Detection carries the class probability and the top box of that class.
+    """
+
+    def __init__(self, weights: str, scorer, thresholds: dict[DefectClass, float], *, imgsz: int = 640,
+                 device: str | int = 0, augment: bool = True):
+        from ultralytics import YOLO
+
+        self.model, self.scorer, self.thresholds = YOLO(weights), scorer, thresholds
+        self.imgsz, self.device, self.augment = imgsz, device, augment
+
+    def detect(self, image) -> list[Detection]:
+        from .stacking import class_stats
+
+        res = self.model.predict(str(image) if not isinstance(image, np.ndarray) else image, imgsz=self.imgsz, conf=0.001,
+                                 iou=0.6, device=self.device, verbose=False, augment=self.augment)[0]
+        cls_ids = res.boxes.cls.cpu().numpy().astype(int)
+        confs = res.boxes.conf.cpu().numpy()
+        xyxyn = np.clip(res.boxes.xyxyn.cpu().numpy(), 0.0, 1.0)
+        areas = (xyxyn[:, 2] - xyxyn[:, 0]) * (xyxyn[:, 3] - xyxyn[:, 1])
+        probs = self.scorer.predict_proba(class_stats(cls_ids, confs, areas, len(DETECTOR_CLASSES))[None])[0]
+        out: list[Detection] = []
+        for j, cls in enumerate(DETECTOR_CLASSES):
+            if j not in self.scorer.models or probs[j] < self.thresholds.get(cls, 0.5):
+                continue
+            idx = np.where(cls_ids == j)[0]
+            if len(idx) == 0:
+                continue  # probability can clear the threshold only via other classes' boxes; there is no box to report
+            x1, y1, x2, y2 = xyxyn[idx[np.argmax(confs[idx])]]
+            if x2 > x1 and y2 > y1:
+                out.append(Detection(cls=cls, conf=float(np.clip(probs[j], 0.0, 1.0)), box=(x1, y1, x2, y2)))
+        return out

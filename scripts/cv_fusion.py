@@ -109,6 +109,10 @@ def main() -> None:
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--out", default="reports/fusion_cv.json")
     ap.add_argument("--bank", action="store_true", help="use real out-of-fold detector behaviour (hybrid fixture)")
+    ap.add_argument("--bank-npz", default="reports/detector_image_level_v2.npz")
+    ap.add_argument("--bank-thresholds", default="reports/detector_thresholds.json")
+    ap.add_argument("--bank-calibration", default="reports/detector_calibration.json",
+                    help="curve file, or 'none' when the scores are already probabilities (stacker)")
     ap.add_argument("--op-out", default="reports/operating_point.json")
     a = ap.parse_args()
 
@@ -116,8 +120,7 @@ def main() -> None:
     if a.bank:
         from dispatch.synth.bank import DetectorBank
 
-        bank = DetectorBank("reports/detector_image_level_v2.npz", "reports/detector_thresholds.json",
-                            "reports/detector_calibration.json")
+        bank = DetectorBank(a.bank_npz, a.bank_thresholds, None if a.bank_calibration == "none" else a.bank_calibration)
     dev = generate_cases(a.n, seed=a.seed, bank=bank.view("dev") if bank else None)
     ev = [c.evidence for c in dev]
     X = build_matrix(ev)

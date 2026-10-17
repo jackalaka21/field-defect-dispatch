@@ -65,6 +65,10 @@ def load_operating_point(path) -> tuple["CostMatrix", "FusionConfig"]:
             replace(FusionConfig(), review_prob=raw["review_prob"]))
 
 
+def confident_classes(ev: "CaseEvidence", cfg: "FusionConfig") -> set[DefectClass]:
+    return {d.cls for d in ev.detections if d.conf >= cfg.det_floor_conf and d.cls is not DefectClass.NO_DEFECT}
+
+
 # --------------------------------------------------------------------------- features
 FEATURE_NAMES: list[str] = (
     [f"conf_{c.value}" for c in DETECTOR_CLASSES]
@@ -72,7 +76,7 @@ FEATURE_NAMES: list[str] = (
     + ["top_conf", "top_area", "n_dets"]
     + [f"said_{c.value}" for c in DefectClass]
     + ["voice_severity", "voice_urgent", "asset_criticality", "asset_resolved", "asr_conf",
-       "agree", "conflict", "det_floor_rank", "voice_floor_rank"]
+       "agree", "conflict", "det_floor_rank", "voice_floor_rank", "agree_any", "conflict_any"]
 )
 
 
@@ -90,6 +94,7 @@ def build_features(ev: CaseEvidence) -> np.ndarray:
     f += [1.0 if top is not None and top.cls is c else 0.0 for c in DETECTOR_CLASSES]
     f += [top.conf if top else 0.0, top.area if top else 0.0, float(len(ev.detections))]
     mentioned = set(ev.cues.mentions)
+    conf_set = {d.cls for d in ev.detections if d.conf >= FusionConfig().det_floor_conf and d.cls is not DefectClass.NO_DEFECT}
     f += [1.0 if c in mentioned else 0.0 for c in DefectClass]
     real_mentions = [m for m in mentioned if m is not DefectClass.NO_DEFECT]
     agree = float(top is not None and top.cls in mentioned)
@@ -104,6 +109,9 @@ def build_features(ev: CaseEvidence) -> np.ndarray:
         conflict,
         float(_floor_rank(top.cls)) if top else 3.0,
         float(min((_floor_rank(m) for m in real_mentions), default=3)),
+        # photos often show several defects at once: compare the voice with ALL confident photo classes
+        float(bool(conf_set & mentioned)),
+        float(bool(conf_set) and bool(real_mentions) and not (conf_set & mentioned)),
     ]
     out = np.asarray(f, dtype=np.float64)
     assert out.shape[0] == len(FEATURE_NAMES)
@@ -184,7 +192,8 @@ def review_reasons(ev: CaseEvidence, max_prob: float, cfg: FusionConfig = Fusion
     real = [m for m in ev.cues.mentions if m is not DefectClass.NO_DEFECT]
     if max_prob < cfg.review_prob:
         reasons.append(f"low priority confidence ({max_prob:.2f})")
-    if top is not None and top.conf >= cfg.det_floor_conf and real and top.cls not in real:
+    confident = confident_classes(ev, cfg)
+    if confident and real and not (confident & set(real)):
         reasons.append("photo and voice name different defects")
     if top is not None and top.conf >= cfg.det_floor_conf and DefectClass.NO_DEFECT in ev.cues.mentions:
         reasons.append("photo shows a defect but voice reports none")

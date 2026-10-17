@@ -3,7 +3,7 @@
     python scripts/demo_pipeline.py --image data/defects_v2/images/image_0000115.jpg \
         --say "Found severe rebar corrosion near pump housing B4"
 
-The detector, thresholds and calibration come from the CODEBRIM-trained model. The fusion model was fitted on the
+The detector, image-level scorer and thresholds come from the CODEBRIM-trained model. The fusion model was fitted on the
 hybrid fixture (real detector behaviour + synthetic voice and labels), so priorities demonstrate the plumbing and
 are not a validated judgement.
 """
@@ -19,11 +19,11 @@ import joblib  # noqa: E402
 
 from dispatch.asr import Transcriber  # noqa: E402
 from dispatch.assets import default_registry  # noqa: E402
-from dispatch.calibration import Calibrator  # noqa: E402
 from dispatch.fusion import PriorityModel, load_operating_point  # noqa: E402
 from dispatch.pipeline import DispatchPipeline  # noqa: E402
 from dispatch.synth.audio import make_memos  # noqa: E402
-from dispatch.vision import DefectDetector, load_thresholds  # noqa: E402
+from dispatch.stacking import ImageScorer  # noqa: E402
+from dispatch.vision import ImageLevelDetector, load_thresholds  # noqa: E402
 
 
 def main() -> None:
@@ -32,16 +32,16 @@ def main() -> None:
     ap.add_argument("--say", help="text to synthesise as the technician's memo")
     ap.add_argument("--audio", type=Path, help="an existing .wav memo instead of --say")
     ap.add_argument("--weights", default="weights/detector.pt")
-    ap.add_argument("--thresholds", default="reports/detector_thresholds.json")
+    ap.add_argument("--thresholds", default="reports/stacker_thresholds.json")
+    ap.add_argument("--scorer", default="weights/stacker.joblib")
     ap.add_argument("--whisper", default="large-v3")
     a = ap.parse_args()
 
     audio = a.audio or make_memos([a.say], Path("data/demo_audio"), snr_db=15.0)[0]
     reg = default_registry()
-    cost, cfg = load_operating_point("reports/operating_point_bank.json")
+    cost, cfg = load_operating_point("reports/operating_point_bank_stacker.json")
     model = PriorityModel(joblib.load("weights/fusion_bank.joblib"), cost, cfg)
-    pipe = DispatchPipeline(DefectDetector(a.weights, load_thresholds(a.thresholds),
-                                                      calibrator=Calibrator.load("reports/detector_calibration.json")), Transcriber(reg, size=a.whisper),
+    pipe = DispatchPipeline(ImageLevelDetector(a.weights, ImageScorer.load(a.scorer), load_thresholds(a.thresholds)), Transcriber(reg, size=a.whisper),
                             model=model, registry=reg, cfg=cfg)
     ev = pipe.evidence(a.image, audio)
     print("transcript cues:", ev.cues.model_dump())
