@@ -15,3 +15,7 @@ weights/
 
 # reports are small and committed on purpose
 !reports/*.json
+
+# derived from CODEBRIM annotations (non-commercial licence): keep local, regenerate with scripts/eval_detector_oof.py
+reports/*.npz
+logs/

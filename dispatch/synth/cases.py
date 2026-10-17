@@ -115,7 +115,7 @@ def _detections(rng: np.random.Generator, true_class: DefectClass, sev: int) -> 
     return dets
 
 
-def generate_cases(n: int, seed: int = 0, n_sites: int = 40, asr_error: float = 0.12) -> list[Case]:
+def generate_cases(n: int, seed: int = 0, n_sites: int = 40, asr_error: float = 0.12, bank=None) -> list[Case]:
     rng = np.random.default_rng(seed)
     registry = default_registry()
     assets = list(registry.values())
@@ -166,8 +166,10 @@ def generate_cases(n: int, seed: int = 0, n_sites: int = 40, asr_error: float = 
         resolved = registry.get(cues.asset_id) if cues.asset_id else None
         n_err = sum(1 for a, b in zip(clean.split(), asr.split()) if a != b)
         asr_conf = float(np.clip(rng.normal(0.88 - 0.12 * n_err, 0.06), 0.05, 0.99))
+        # real out-of-fold detector behaviour where CODEBRIM covers the class, the simulator otherwise
+        dets = bank.sample(cls, rng) if bank is not None and bank.covers(cls) else _detections(rng, cls, sev)
         ev = CaseEvidence(
-            detections=_detections(rng, cls, sev), cues=cues, asr_confidence=asr_conf,
+            detections=dets, cues=cues, asr_confidence=asr_conf,
             asset_criticality=resolved.structural_criticality if resolved else None,
         )
         cases.append(Case(i, site, cls, sev, asset, pri, ev, clean, asr))

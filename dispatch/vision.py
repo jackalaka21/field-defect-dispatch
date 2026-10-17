@@ -54,13 +54,18 @@ def load_thresholds(path: str | Path, default: float = 0.25) -> dict[DefectClass
 
 
 class DefectDetector:
-    def __init__(self, weights: str, thresholds: dict[DefectClass, float] | None = None, *, tile: int | None = 640,
-                 overlap: float = 0.2, imgsz: int = 640, device: str | int = 0, floor_conf: float = 0.02):
+    """`tile=None` (default) matches how thresholds and calibration were fitted (one pass at `imgsz`). Tiled inference
+    takes a max over more views, which shifts the score distribution; enable it only after refitting on tiled scores."""
+
+    def __init__(self, weights: str, thresholds: dict[DefectClass, float] | None = None, *, tile: int | None = None,
+                 overlap: float = 0.2, imgsz: int = 640, device: str | int = 0, floor_conf: float = 0.02,
+                 calibrator=None):
         from ultralytics import YOLO  # imported lazily so the rest of the package needs no vision stack
 
         self.model = YOLO(weights)
         self.thresholds = thresholds or {}
         self.tile, self.overlap, self.imgsz, self.device, self.floor_conf = tile, overlap, imgsz, device, floor_conf
+        self.calibrator = calibrator  # maps raw scores to probabilities; thresholds stay in raw-score space
         self.names = self.model.names
 
     def _run(self, img: np.ndarray, x0: int, y0: int, W: int, H: int) -> list[Detection]:
@@ -89,4 +94,7 @@ class DefectDetector:
             for x0, y0, x1, y1 in tile_windows(W, H, self.tile, self.overlap):
                 dets += self._run(image[y0:y1, x0:x1], x0, y0, W, H)
         dets = merge_detections(dets)
-        return [d for d in dets if d.conf >= self.thresholds.get(d.cls, 0.25)]
+        kept = [d for d in dets if d.conf >= self.thresholds.get(d.cls, 0.25)]
+        if self.calibrator is not None:
+            kept = [d.model_copy(update={"conf": self.calibrator(d.cls, d.conf)}) for d in kept]
+        return kept

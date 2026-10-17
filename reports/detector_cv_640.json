@@ -1,0 +1,122 @@
+{
+  "folds": 5,
+  "n_images": 1016,
+  "per_class_oof": {
+    "exposed_rebar": {
+      "threshold": 0.15592551231384277,
+      "precision": 0.45458715596330274,
+      "recall": 0.6606666666666666,
+      "reached_target": false,
+      "n_gt": 1500,
+      "recall_target": 0.95
+    },
+    "rebar_corrosion": {
+      "threshold": 0.09504762291908264,
+      "precision": 0.3394294074615947,
+      "recall": 0.5998707175177763,
+      "reached_target": false,
+      "n_gt": 1547,
+      "recall_target": 0.9
+    },
+    "spalling": {
+      "threshold": 0.1329192817211151,
+      "precision": 0.38233164373642287,
+      "recall": 0.559322033898305,
+      "reached_target": false,
+      "n_gt": 1888,
+      "recall_target": 0.9
+    },
+    "structural_crack": {
+      "threshold": 0.08470404893159866,
+      "precision": 0.19163442049014187,
+      "recall": 0.41616646658663464,
+      "reached_target": false,
+      "n_gt": 2499,
+      "recall_target": 0.95
+    },
+    "hairline_crack": {
+      "threshold": 0.5,
+      "precision": NaN,
+      "recall": 0.0,
+      "reached_target": false,
+      "n_gt": 0,
+      "recall_target": 0.75
+    },
+    "water_leak": {
+      "threshold": 0.5,
+      "precision": NaN,
+      "recall": 0.0,
+      "reached_target": false,
+      "n_gt": 0,
+      "recall_target": 0.85
+    },
+    "efflorescence": {
+      "threshold": 0.05682619288563728,
+      "precision": 0.19308035714285715,
+      "recall": 0.4188861985472155,
+      "reached_target": false,
+      "n_gt": 826,
+      "recall_target": 0.75
+    }
+  },
+  "note": "Real data (CODEBRIM, non-commercial licence). hairline_crack and water_leak have no labels in this dataset. Folds 1-4 were still improving at epoch 40.",
+  "config": {
+    "model": "yolov8s",
+    "imgsz": 640,
+    "epochs": 40,
+    "patience": 10,
+    "batch": 8,
+    "grouping": "blocks of 20 consecutive photo ids (80 groups)",
+    "dataset": "CODEBRIM original images, 1016 annotated photos, downscaled to 1280px long side"
+  },
+  "per_fold_ultralytics_val": [
+    {
+      "fold": 0,
+      "epochs_run": 40,
+      "best_epoch": 32,
+      "precision": 0.37564,
+      "recall": 0.34005,
+      "mAP50": 0.29932,
+      "mAP50_95": 0.13586
+    },
+    {
+      "fold": 1,
+      "epochs_run": 40,
+      "best_epoch": 40,
+      "precision": 0.46599,
+      "recall": 0.4432,
+      "mAP50": 0.40567,
+      "mAP50_95": 0.18677
+    },
+    {
+      "fold": 2,
+      "epochs_run": 40,
+      "best_epoch": 40,
+      "precision": 0.41505,
+      "recall": 0.39738,
+      "mAP50": 0.35931,
+      "mAP50_95": 0.16369
+    },
+    {
+      "fold": 3,
+      "epochs_run": 40,
+      "best_epoch": 40,
+      "precision": 0.45206,
+      "recall": 0.44395,
+      "mAP50": 0.38792,
+      "mAP50_95": 0.16935
+    },
+    {
+      "fold": 4,
+      "epochs_run": 40,
+      "best_epoch": 39,
+      "precision": 0.48088,
+      "recall": 0.45949,
+      "mAP50": 0.43622,
+      "mAP50_95": 0.19428
+    }
+  ],
+  "mean_mAP50": 0.37768799999999997,
+  "std_mAP50": 0.04646068333548271,
+  "mean_mAP50_95": 0.16999
+}

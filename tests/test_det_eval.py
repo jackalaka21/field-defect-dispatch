@@ -37,3 +37,23 @@ def test_threshold_reaches_recall_with_best_precision():
 def test_threshold_degenerate_inputs():
     assert choose_threshold([], 5, 0.9)["recall"] == 0.0
     assert not choose_threshold([Record(0, 0.9, True)], 0, 0.9)["reached_target"]
+
+
+def test_calibrator_is_monotone_clips_and_round_trips(tmp_path):
+    from dispatch.calibration import Calibrator
+    from dispatch.taxonomy import DETECTOR_CLASSES, DefectClass
+
+    rng = np.random.default_rng(0)
+    K = len(DETECTOR_CLASSES)
+    scores = rng.uniform(0, 0.4, size=(400, K))
+    present = rng.uniform(size=(400, K)) < (scores * 2.0)  # P(present) = 2 * score
+    present[:, 5] = False  # a class with no labels stays uncalibrated
+    cal = Calibrator.fit(scores, present, DETECTOR_CLASSES)
+    c = DefectClass.EXPOSED_REBAR
+    vals = [cal(c, v) for v in np.linspace(0, 0.4, 20)]
+    assert all(b >= a - 1e-12 for a, b in zip(vals, vals[1:]))
+    assert 0.0 <= min(vals) and max(vals) <= 1.0
+    assert cal(c, 5.0) == cal(c, 0.4 + 1.0)  # out of range clips
+    assert cal(DETECTOR_CLASSES[5], 0.37) == pytest.approx(0.37)  # untouched
+    cal.save(tmp_path / "c.json")
+    assert Calibrator.load(tmp_path / "c.json")(c, 0.2) == pytest.approx(cal(c, 0.2))

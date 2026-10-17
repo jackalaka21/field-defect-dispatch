@@ -108,9 +108,17 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--out", default="reports/fusion_cv.json")
+    ap.add_argument("--bank", action="store_true", help="use real out-of-fold detector behaviour (hybrid fixture)")
+    ap.add_argument("--op-out", default="reports/operating_point.json")
     a = ap.parse_args()
 
-    dev = generate_cases(a.n, seed=a.seed)
+    bank = None
+    if a.bank:
+        from dispatch.synth.bank import DetectorBank
+
+        bank = DetectorBank("reports/detector_image_level_v2.npz", "reports/detector_thresholds.json",
+                            "reports/detector_calibration.json")
+    dev = generate_cases(a.n, seed=a.seed, bank=bank.view("dev") if bank else None)
     ev = [c.evidence for c in dev]
     X = build_matrix(ev)
     y = np.array([c.true_priority.rank for c in dev])
@@ -147,7 +155,11 @@ def main() -> None:
     # final refit on all development data, one look at an untouched holdout of unseen sites
     name, make = inner_select(X, y, groups, ev, seed=99)
     final = PriorityModel(make(), COST, CFG).fit(X, y)
-    test = generate_cases(a.holdout, seed=a.seed + 1000)
+    import joblib
+
+    Path("weights").mkdir(exist_ok=True)
+    joblib.dump(final.estimator, "weights/fusion_bank.joblib" if a.bank else "weights/fusion.joblib")  # local only (gitignored); rerun this script to rebuild
+    test = generate_cases(a.holdout, seed=a.seed + 1000, bank=bank.view("holdout") if bank else None)
     ev_t = [c.evidence for c in test]
     y_t = np.array([c.true_priority.rank for c in test])
     proba_t = final.predict_proba(build_matrix(ev_t))
@@ -178,7 +190,7 @@ def main() -> None:
     print("\nchosen operating point (pooled out-of-fold):", fmt(point))
     print("holdout at chosen point :", fmt(holdout_point))
     print("holdout at default point:", fmt(holdout_default))
-    Path("reports/operating_point.json").write_text(json.dumps(
+    Path(a.op_out).write_text(json.dumps(
         {"under_scale": point["under_scale"], "review_prob": point["review_prob"]}, indent=2))
     print(f"\nholdout ({name}):", {k: round(v, 3) for k, v in holdout["model_cost_floor"].items()})
     print("holdout rules   :", {k: round(v, 3) for k, v in holdout["rules"].items()})

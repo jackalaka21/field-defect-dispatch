@@ -33,8 +33,8 @@ RECALL_TARGET = {"exposed_rebar": 0.95, "rebar_corrosion": 0.90, "spalling": 0.9
                  "hairline_crack": 0.75, "water_leak": 0.85, "efflorescence": 0.75}
 
 
-def index_dataset(data: Path) -> tuple[list[Path], np.ndarray, np.ndarray]:
-    groups_csv = data / "groups.csv"
+def index_dataset(data: Path, groups_file: str = "groups.csv") -> tuple[list[Path], np.ndarray, np.ndarray]:
+    groups_csv = data / groups_file
     given = {}
     if groups_csv.exists():
         with groups_csv.open() as f:
@@ -65,7 +65,7 @@ def train(weights: str, data_yaml: Path, run_dir: Path, a: argparse.Namespace):
     model = YOLO(weights)
     model.train(data=str(data_yaml), epochs=a.epochs, imgsz=a.imgsz, batch=a.batch, device=a.device, seed=a.seed,
                 project=str(run_dir.parent.resolve()), name=run_dir.name, exist_ok=True, patience=a.patience,
-                plots=not a.smoke, amp=not a.smoke, workers=a.workers, verbose=False,
+                plots=False, amp=not a.smoke, workers=a.workers, verbose=False,
                 # field-condition augmentation: lighting, glare, odd angles; no vertical flip (gravity matters)
                 hsv_h=0.015, hsv_s=0.6, hsv_v=0.5, degrees=10, translate=0.1, scale=0.5, fliplr=0.5, mosaic=1.0)
     best = run_dir / "weights" / "best.pt"
@@ -91,6 +91,17 @@ def predict_records(model, imgs: list[Path], labels_dir: Path, a: argparse.Names
     return recs, n_gt
 
 
+def fit_final(a: argparse.Namespace, imgs, strata, groups) -> None:
+    """Fit on all data. ~10% of groups are held out purely for checkpoint selection / early stopping, so the
+    saved weights come from one run whose reported CV numbers are the out-of-fold ones, not these."""
+    tr, va = next(StratifiedGroupKFold(n_splits=10, shuffle=True, random_state=a.seed).split(imgs, strata, groups))
+    dy = write_split(a.out / "final", [imgs[i] for i in tr], [imgs[i] for i in va])
+    train(a.weights, dy, a.out / "final" / "run", a)
+    Path("weights").mkdir(exist_ok=True)
+    shutil.copy(a.out / "final" / "run" / "weights" / "best.pt", "weights/detector.pt")
+    print("saved weights/detector.pt")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True, type=Path)
@@ -104,18 +115,26 @@ def main() -> None:
     ap.add_argument("--device", default="0")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", type=Path, default=Path("runs/detector_cv"))
+    ap.add_argument("--groups-file", default="groups.csv", help="CSV of image_stem,group inside --data")
+    ap.add_argument("--only-folds", type=int, nargs="*", default=None, help="run just these fold indices (config probes)")
     ap.add_argument("--smoke", action="store_true", help="tiny run: no AMP check, no plots, no final fit")
+    ap.add_argument("--final-only", action="store_true", help="skip CV; just fit the deployable detector")
     ap.add_argument("--final", action="store_true", help="also fit on all data and save weights/detector.pt")
     a = ap.parse_args()
 
-    imgs, strata, groups = index_dataset(a.data)
+    imgs, strata, groups = index_dataset(a.data, a.groups_file)
     if len(set(groups)) < a.folds:
         sys.exit(f"need at least {a.folds} distinct groups, found {len(set(groups))}")
+    if a.final_only:
+        fit_final(a, imgs, strata, groups)
+        return
     skf = StratifiedGroupKFold(n_splits=a.folds, shuffle=True, random_state=a.seed)
     labels_dir = a.data / "labels"
     pooled = {i: [] for i in range(len(DETECTOR_CLASSES))}
     pooled_gt = {i: 0 for i in range(len(DETECTOR_CLASSES))}
     for k, (tr, va) in enumerate(skf.split(imgs, strata, groups)):
+        if a.only_folds is not None and k not in a.only_folds:
+            continue
         fold_dir = a.out / f"fold{k}"
         dy = write_split(fold_dir, [imgs[i] for i in tr], [imgs[i] for i in va])
         model = train(a.weights, dy, fold_dir / "run", a)
@@ -140,14 +159,7 @@ def main() -> None:
               f"(target {r['recall_target']:.2f}, n_gt={r['n_gt']})")
 
     if a.final and not a.smoke:
-        # final fit: hold out ~10% of sites purely for checkpoint selection / early stopping
-        tr, va = next(StratifiedGroupKFold(n_splits=10, shuffle=True, random_state=a.seed).split(imgs, strata, groups))
-        dy = write_split(a.out / "final", [imgs[i] for i in tr], [imgs[i] for i in va])
-        train(a.weights, dy, a.out / "final" / "run", a)
-        Path("weights").mkdir(exist_ok=True)
-        shutil.copy(a.out / "final" / "run" / "weights" / "best.pt", "weights/detector.pt")
-        print("saved weights/detector.pt")
-
+        fit_final(a, imgs, strata, groups)
 
 if __name__ == "__main__":
     main()

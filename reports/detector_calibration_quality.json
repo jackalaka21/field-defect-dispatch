@@ -1,0 +1,32 @@
+{
+  "exposed_rebar": {
+    "ece_raw": 0.06922577987478967,
+    "ece_calibrated_crossfit": 0.009761970193369444,
+    "brier_raw": 0.06781932987774106,
+    "brier_calibrated_crossfit": 0.057445123820063296
+  },
+  "rebar_corrosion": {
+    "ece_raw": 0.12982832924301038,
+    "ece_calibrated_crossfit": 0.01597895878000331,
+    "brier_raw": 0.12121281778865912,
+    "brier_calibrated_crossfit": 0.09449687170516843
+  },
+  "spalling": {
+    "ece_raw": 0.12422949458580904,
+    "ece_calibrated_crossfit": 0.01763551616240022,
+    "brier_raw": 0.1114515586052952,
+    "brier_calibrated_crossfit": 0.0884736109138222
+  },
+  "structural_crack": {
+    "ece_raw": 0.22619087883391742,
+    "ece_calibrated_crossfit": 0.01623731892258296,
+    "brier_raw": 0.20618423824898247,
+    "brier_calibrated_crossfit": 0.1270564598147845
+  },
+  "efflorescence": {
+    "ece_raw": 0.0931717950600964,
+    "ece_calibrated_crossfit": 0.010783895984436468,
+    "brier_raw": 0.11190502815592439,
+    "brier_calibrated_crossfit": 0.10089727622830542
+  }
+}

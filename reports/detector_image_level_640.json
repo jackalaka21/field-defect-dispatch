@@ -1,0 +1,68 @@
+{
+  "n_images": 1016,
+  "per_class": {
+    "exposed_rebar": {
+      "n_positive_images": 444,
+      "image_AP": 0.9480648312797004,
+      "image_AUROC": 0.9590027090027089,
+      "prevalence": 0.43700787401574803,
+      "recall_target": 0.95,
+      "threshold": 0.12174544483423233,
+      "precision": 0.7962264150943397,
+      "recall": 0.9504504504504504,
+      "reached_target": true
+    },
+    "rebar_corrosion": {
+      "n_positive_images": 570,
+      "image_AP": 0.9296170627828841,
+      "image_AUROC": 0.9208244827314924,
+      "prevalence": 0.5610236220472441,
+      "recall_target": 0.9,
+      "threshold": 0.17443698644638062,
+      "precision": 0.8300970873786407,
+      "recall": 0.9,
+      "reached_target": true
+    },
+    "spalling": {
+      "n_positive_images": 559,
+      "image_AP": 0.9319168338093913,
+      "image_AUROC": 0.9140795340225394,
+      "prevalence": 0.5501968503937008,
+      "recall_target": 0.9,
+      "threshold": 0.12557432055473328,
+      "precision": 0.7993680884676145,
+      "recall": 0.9051878354203936,
+      "reached_target": true
+    },
+    "structural_crack": {
+      "n_positive_images": 627,
+      "image_AP": 0.8741356625132612,
+      "image_AUROC": 0.8294280923153878,
+      "prevalence": 0.6171259842519685,
+      "recall_target": 0.95,
+      "threshold": 0.04970903322100639,
+      "precision": 0.7078384798099763,
+      "recall": 0.9505582137161085,
+      "reached_target": true
+    },
+    "hairline_crack": {
+      "n_positive_images": 0,
+      "note": "no labels in this dataset"
+    },
+    "water_leak": {
+      "n_positive_images": 0,
+      "note": "no labels in this dataset"
+    },
+    "efflorescence": {
+      "n_positive_images": 318,
+      "image_AP": 0.7854985917784836,
+      "image_AUROC": 0.8691431943918833,
+      "prevalence": 0.31299212598425197,
+      "recall_target": 0.75,
+      "threshold": 0.09369342774152756,
+      "precision": 0.6547945205479452,
+      "recall": 0.7515723270440252,
+      "reached_target": true
+    }
+  }
+}
