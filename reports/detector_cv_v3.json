@@ -1,0 +1,53 @@
+{
+  "config": {
+    "model": "yolov8s",
+    "imgsz": 640,
+    "epochs": 100,
+    "patience": 25,
+    "box_gain": 4.0,
+    "cls_gain": 1.0,
+    "cos_lr": true,
+    "close_mosaic": 15,
+    "data": "CODEBRIM + 538 clean photos, 5-fold, blocks of 20 consecutive ids"
+  },
+  "per_fold_ultralytics_val": [
+    {
+      "fold": 0,
+      "epochs_run": 100,
+      "best_epoch": 84,
+      "mAP50": 0.33722,
+      "mAP50_95": 0.15454
+    },
+    {
+      "fold": 1,
+      "epochs_run": 100,
+      "best_epoch": 85,
+      "mAP50": 0.40093,
+      "mAP50_95": 0.18573
+    },
+    {
+      "fold": 2,
+      "epochs_run": 100,
+      "best_epoch": 81,
+      "mAP50": 0.37588,
+      "mAP50_95": 0.16449
+    },
+    {
+      "fold": 3,
+      "epochs_run": 100,
+      "best_epoch": 98,
+      "mAP50": 0.39824,
+      "mAP50_95": 0.17984
+    },
+    {
+      "fold": 4,
+      "epochs_run": 100,
+      "best_epoch": 98,
+      "mAP50": 0.37502,
+      "mAP50_95": 0.18169
+    }
+  ],
+  "mean_mAP50": 0.377458,
+  "std_mAP50": 0.02284888128552467,
+  "mean_mAP50_95": 0.173258
+}

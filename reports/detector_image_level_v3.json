@@ -1,0 +1,76 @@
+{
+  "n_images": 1554,
+  "per_class": {
+    "exposed_rebar": {
+      "n_positive_images": 444,
+      "image_AP": 0.944680985227688,
+      "image_AUROC": 0.977526174823472,
+      "prevalence": 0.2857142857142857,
+      "recall_target": 0.95,
+      "threshold": 0.1479591578245163,
+      "precision": 0.7996219281663516,
+      "recall": 0.9527027027027027,
+      "reached_target": true,
+      "false_positive_rate_on_clean": 0.05018587360594796
+    },
+    "rebar_corrosion": {
+      "n_positive_images": 570,
+      "image_AP": 0.900492754501085,
+      "image_AUROC": 0.9406093995150477,
+      "prevalence": 0.3667953667953668,
+      "recall_target": 0.9,
+      "threshold": 0.19828784465789795,
+      "precision": 0.7691154422788605,
+      "recall": 0.9,
+      "reached_target": true,
+      "false_positive_rate_on_clean": 0.08364312267657993
+    },
+    "spalling": {
+      "n_positive_images": 559,
+      "image_AP": 0.9277831443304808,
+      "image_AUROC": 0.950703427693027,
+      "prevalence": 0.35971685971685974,
+      "recall_target": 0.9,
+      "threshold": 0.11217070370912552,
+      "precision": 0.7544910179640718,
+      "recall": 0.9016100178890877,
+      "reached_target": true,
+      "false_positive_rate_on_clean": 0.0724907063197026
+    },
+    "structural_crack": {
+      "n_positive_images": 627,
+      "image_AP": 0.8804221094245261,
+      "image_AUROC": 0.9200057120343273,
+      "prevalence": 0.4034749034749035,
+      "recall_target": 0.95,
+      "threshold": 0.06739691644906998,
+      "precision": 0.6633333333333333,
+      "recall": 0.9521531100478469,
+      "reached_target": true,
+      "false_positive_rate_on_clean": 0.18587360594795538
+    },
+    "hairline_crack": {
+      "n_positive_images": 0,
+      "note": "no labels in this dataset"
+    },
+    "water_leak": {
+      "n_positive_images": 0,
+      "note": "no labels in this dataset"
+    },
+    "efflorescence": {
+      "n_positive_images": 318,
+      "image_AP": 0.8087387422594047,
+      "image_AUROC": 0.9223949746595835,
+      "prevalence": 0.20463320463320464,
+      "recall_target": 0.75,
+      "threshold": 0.261520653963089,
+      "precision": 0.7058823529411765,
+      "recall": 0.7547169811320755,
+      "reached_target": true,
+      "false_positive_rate_on_clean": 0.05947955390334572
+    }
+  },
+  "clean_images": 538,
+  "clean_flagged_for_any_class": 0.3159851301115242,
+  "defect_photos_flagged_for_any_class": 0.9714566929133859
+}

@@ -11,12 +11,13 @@ labels, so the voice and priority parts of every number are synthetic. See the R
 
 | Question | Finding |
 |---|---|
-| Is the detector good enough to name the defect in a photo? | Yes at image level (AUROC 0.89–0.97, recall targets met out of fold); no at box level (mAP50 0.37). |
-| Can it gate clean vs defective photos? | Poorly: at recall-targeted thresholds 45% of clean photos are flagged. Structural-crack alone 30%. |
-| Do raw scores work as probabilities? | No (calibration error 0.07–0.23). Isotonic calibration fixes it to ~0.01–0.02, but is prevalence-specific. |
+| Is the detector good enough to name the defect in a photo? | Yes at image level (mean AP 0.898, AUROC 0.915–0.977, recall targets met out of fold); no at box level (mAP50 0.38). |
+| Can it gate clean vs defective photos? | Better but not reliably: clean photos flagged fell from 45% to 22.5% (TTA, retraining, learned scorer) at ~96% defect recall; structural crack is the weak class (16.5%). |
+| Do raw scores work as probabilities? | No (calibration error 0.07–0.23). The logistic image-level scorer outputs probabilities with error ≤ 0.023, but they encode this dataset's prevalence. |
 | Does higher resolution help? | Not measurably at image level (960 px tie with 640 px for ~4–5× compute). |
 | Does domain prompting help speech? | Yes on synthetic memos: word error 0.229 → 0.177, keyword error 3.6% → 0.6%. |
-| Can fusion hit ≤3% escaped critical misses? | With the real detector's false alarms: 4.3% at a 52% review rate on the holdout. Not yet. |
+| Does a better detector improve fusion? | Not distinguishably: 1.1–1.8% of critical misses escape review across detector variants (4 seeds), at 33–39% review. The synthetic voice/label layer and ~100 critical holdout cases dominate. |
+| Can fusion hit ≤3% escaped critical misses? | Yes on average (1.8% ± 1.2%, worst seed 3.3%), at a 38% ± 9% review rate, on the hybrid fixture only. |
 
 ## Hardware budget (8 GB)
 
@@ -36,17 +37,17 @@ Stages run sequentially per ticket; training and inference should not overlap.
 | CODEBRIM licence is non-commercial, no redistribution | data, weights, score files stay local | handled in `.gitignore` and README |
 | Hairline crack and water leak have no training data | those classes cannot be detected | open; need another dataset or own photos |
 | CODEBRIM's generic "crack" is mapped to `structural_crack` | cosmetic cracks over-escalated | accepted, conservative |
-| Detector false alarms on clean photos (45% flagged) | high human-review load | open; more clean negatives, longer training, better threshold policy |
-| Thresholds/calibration come from fold models, applied to the final model fitted on all data | small distribution shift | accepted (standard k-fold practice); refit on a production sample |
-| Tiled inference not validated | score shift vs calibration | `tile=None` by default; enable only after refitting |
+| Detector false alarms on clean photos (22.5% flagged) | human-review load | reduced from 45%; more clean negatives and a larger model would help |
+| Scorer and thresholds fitted on fold-model scores, applied to the final model trained on all data | small distribution shift | accepted (standard k-fold practice); refit on a production sample |
+| Tiled inference not validated | score shift vs the scorer | `DefectDetector.tile=None` by default; `ImageLevelDetector` uses one pass + TTA as validated |
 | Label noise: unlabelled stains among the 538 negatives | FPR slightly pessimistic | noted |
 | Python 3.14 / PyAV 19 / CUDA-lib incompatibilities | install failures | worked around and documented |
 
 ## Remaining work, by expected gain
 
 1. Real technician memos and expert priority labels (even 200 cases) to replace the synthetic voice/label layer.
-2. Train longer (every CV fold's best epoch was its last) and try a larger model; add more clean negatives to cut
-   false alarms.
+2. Try a larger model (yolov8m needs a new weights download), add more clean negatives, and rerun the image-level
+   evaluation; structural crack (precision 0.64 at 0.95 recall) has the most headroom.
 3. Collect photos of hairline cracks and water leaks, or drop those classes from the taxonomy.
 4. Re-tune the operating point on real fusion data; aim for ≤3% escaped critical misses at a tolerable review rate.
 5. Plane API client with idempotency keys and deduplication; drift monitoring; shadow-mode rollout.
