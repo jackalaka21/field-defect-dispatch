@@ -19,3 +19,4 @@ weights/
 # derived from CODEBRIM annotations (non-commercial licence): keep local, regenerate with scripts/eval_detector_oof.py
 reports/*.npz
 logs/
+reports/*.npy

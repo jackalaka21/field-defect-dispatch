@@ -149,7 +149,7 @@ cuBLAS/cuDNN through the CUDA PyTorch build. `reports/*_v2*` and `exp_*` files d
 
 CODEBRIM is licensed for **non-commercial research and educational use only**, may not be redistributed, and models
 trained on it may be shared only under the same terms. The data, weights and derived score files are therefore not
-committed (`data/`, `weights/`, `reports/*.npz` are git-ignored). Please cite:
+committed (`data/`, `weights/`, `reports/*.npz` and `reports/*.npy` are git-ignored). Please cite:
 
 > Mundt, Majumder, Murali, Panetsos, Ramesh. *Meta-learning Convolutional Neural Architectures for Multi-target Concrete
 > Defect Classification with the COncrete DEfect BRidge IMage Dataset.* CVPR 2019.
